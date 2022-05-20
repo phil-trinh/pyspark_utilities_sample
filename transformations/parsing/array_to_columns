@@ -1,0 +1,88 @@
+"""
+Table of Contents
+
+1. split_array_to_columns: Split a list to separate columns.
+"""
+
+from pyspark.sql import functions as F, types as T, DataFrame, Row, SparkSession
+from typing import Callable
+
+
+def split_array_to_columns(
+    data: DataFrame,
+    col_index: str,
+    col_target: str,
+    dtype: Callable = str,
+    dtype_target: Callable = T.StringType(),
+) -> DataFrame:
+    """
+    Split an array to separate columns.
+
+    Inputs
+        data: DataFrame.
+        col_index: DataFrame's primary key column.
+        col_target: Explodes array in this column to new columns.
+        dtype: Type of values expected.
+        dtype_target: PySpark schema type of values expected.
+
+    Output
+        Updated DataFrame.
+
+    Example
+        df = split_list_to_columns(df, "primary_key", "array_col", int, T.IntegerType())
+        Will take arrays of integers from array_col and create new columns for the DataFrame.
+    """
+    def explode_vals(x, ncols: int, dtype: Callable = str) -> list:
+        """
+        Returns row with length ncols. Fill with null values.
+
+        Inputs
+            x: Values. If not a list, will be stored as a single-valued list.
+            ncols: Number of columns the length of output should have.
+            dtype: Expected value type.
+
+        Output
+            Returns a list of values, padded with None to ensure length is ncols.
+
+        Example
+            output = explode_values([1, 2, 3], 4, int)
+            Will return [1, 2, 3, None].
+        """
+        if isinstance(x, list):
+            out = [dtype(x_) for x_ in x]
+        else:
+            out = [dtype(x)]
+
+        if len(x) < ncols:
+            out.extend([None]*(ncols - len(x)))
+
+        return out
+
+    # subset to index and target columns; index column is not nullable
+    tmp = data.select(col_index, col_target).withColumn('len', F.size(F.col(col_target)))
+    ncols = tmp.agg(F.max(F.col('len')).alias('max_len')).collect()[0]['max_len']  # noqa
+
+    # check for valid number of columns
+    if ncols < 1:
+        return data
+
+    cols = ['{}_{}'.format(col_target, i) for i in range(ncols)]
+    print("Splitting {} into {} columns".format(col_target, ncols))
+
+    # set output schema to string
+    schema = T.StructType(
+        [T.StructField(col_index, T.StringType(), False)]
+        + [T.StructField(col_name, dtype_target, True) for col_name in cols]
+    )
+
+    # use rdd map function to split list into multiple columns
+    rdd = (
+        tmp.where(F.col('len') > 0).rdd
+        .map(lambda x: Row(str(x[0]), *explode_vals(x[1], ncols, dtype=dtype)))
+    )
+
+    # create spark dataframe
+    spark = SparkSession.builder.getOrCreate()
+    tmp_flat = spark.createDataFrame(data=rdd, schema=schema)
+
+    return data.join(tmp_flat, on=col_index, how='left')
