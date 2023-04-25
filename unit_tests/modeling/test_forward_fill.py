@@ -14,10 +14,10 @@ from pyspark.sql import types as T, DataFrame
 
 from ..unit_test_utils import answer_check
 
-from transformations_library.modeling.forward_fill import forward_fill
+from transformations_library.modeling.missing_values import forward_fill
 
 
-def forward_fill_df(spark_session) -> DataFrame:
+def create_dataframe(spark_session) -> DataFrame:
     """
     Create a DataFrame to use for testing the function.
 
@@ -54,10 +54,10 @@ def test_forward_fill_0(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = forward_fill_df(spark_session)
+    df = create_dataframe(spark_session)
     df = forward_fill(df, "data", "order-by")
     answer = {"a": None, "b": 2, "c": 2, "d": 4, "e": 8, "f": 8, "g": 8}
-    answer_check(df, answer, "data", "test_0")
+    answer_check(df, answer, "data")
 
 
 def test_forward_fill_1(spark_session) -> None:
@@ -67,7 +67,7 @@ def test_forward_fill_1(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = forward_fill_df(spark_session)
+    df = create_dataframe(spark_session)
     df = forward_fill(df, {"data": "new_data"}, "order-by")
     answer = {"a": None, "b": 2, "c": 2, "d": 4, "e": 8, "f": 8, "g": 8}
     answer_check(df, answer, "new_data", "test_1 of output column")
@@ -82,7 +82,8 @@ def test_forward_fill_2(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = forward_fill_df(spark_session)
+    df = create_dataframe(spark_session)
     df = forward_fill(df, "data", "order-by", partitioning="group-by", default_name="{0}_out")
     answer = {"a": None, "b": 2, "c": None, "d": 4, "e": 8, "f": 8, "g": 4}
-    answer_check(df, answer, "data_out", "test_2")
+    answer_check(df, answer, "data_out")
+

@@ -17,7 +17,7 @@ from ..unit_test_utils import answer_check
 from transformations_library.modeling.cumulative import cumul_sum
 
 
-def cumul_sum_df(spark_session) -> DataFrame:
+def create_dataframe(spark_session) -> DataFrame:
     """
     Create a DataFrame to use for testing the function.
 
@@ -54,11 +54,11 @@ def test_cumul_sum_0(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = cumul_sum_df(spark_session)
+    df = create_dataframe(spark_session)
     cols_target = {"to_add": "cumulative_column"}
     df = cumul_sum(df, cols_target, "sort", "group")
     answer = {"a": 1, "b": 3, "c": 5, "d": 4, "e": 11, "f": 5}
-    answer_check(df, answer, "cumulative_column", "test_0")
+    answer_check(df, answer, "cumulative_column")
 
 
 def test_cumul_sum_1(spark_session):
@@ -68,10 +68,10 @@ def test_cumul_sum_1(spark_session):
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = cumul_sum_df(spark_session)
+    df = create_dataframe(spark_session)
     df = cumul_sum(df, "to_add", "sort", "group")
     answer = {"a": 1, "b": 3, "c": 5, "d": 4, "e": 11, "f": 5}
-    answer_check(df, answer, "to_add_cumul_sum", "test_1")
+    answer_check(df, answer, "to_add_cumul_sum")
 
 
 def test_cumul_sum_2(spark_session):
@@ -81,7 +81,7 @@ def test_cumul_sum_2(spark_session):
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = cumul_sum_df(spark_session)
+    df = create_dataframe(spark_session)
     df = cumul_sum(df, ["to_add", "to_add_also"], "sort", "group")
     answer = {"a": 1, "b": 3, "c": 5, "d": 4, "e": 11, "f": 5}
     answer_check(df, answer, "to_add_cumul_sum", "test_2_to_add")
@@ -96,11 +96,11 @@ def test_cumul_sum_3(spark_session):
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = cumul_sum_df(spark_session)
+    df = create_dataframe(spark_session)
     cols_target = {"to_add": "cumulative_column"}
     df = cumul_sum(df, cols_target, ["sort", "key"])
     answer = {"a": 1, "b": 7, "c": 8, "d": 5, "e": 16, "f": 16}
-    answer_check(df, answer, "cumulative_column", "test_3")
+    answer_check(df, answer, "cumulative_column")
 
 
 def test_cumul_sum_4(spark_session):
@@ -110,10 +110,10 @@ def test_cumul_sum_4(spark_session):
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = cumul_sum_df(spark_session)
+    df = create_dataframe(spark_session)
     df = cumul_sum(df, "to_add", "sort", ["group"])
     answer = {"a": 1, "b": 3, "c": 5, "d": 4, "e": 11, "f": 5}
-    answer_check(df, answer, "to_add_cumul_sum", "test_4")
+    answer_check(df, answer, "to_add_cumul_sum")
 
 
 def test_cumul_sum_5(spark_session):
@@ -123,7 +123,8 @@ def test_cumul_sum_5(spark_session):
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = cumul_sum_df(spark_session)
+    df = create_dataframe(spark_session)
     df = cumul_sum(df, "to_add", "sort", ["group"], default_name="output_{0}")
     answer = {"a": 1, "b": 3, "c": 5, "d": 4, "e": 11, "f": 5}
-    answer_check(df, answer, "output_to_add", "test_5")
+    answer_check(df, answer, "output_to_add")
+

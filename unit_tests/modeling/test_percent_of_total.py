@@ -16,7 +16,7 @@ from ..unit_test_utils import answer_check
 from transformations_library.modeling.cumulative import percent_of_total
 
 
-def characters_dataframe(spark_session) -> DataFrame:
+def create_dataframe(spark_session) -> DataFrame:
     """
     Create a DataFrame to use for testing the function.
 
@@ -52,10 +52,10 @@ def test_percent_of_total_0(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = characters_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = percent_of_total(df, {"data": "output"}, "grouping")
     answer = {"a": 0.1, "b": 0.0, "c": 0.4, "d": 0.5, "e": 1.0, "f": None}
-    answer_check(df, answer, "output", "test_0")
+    answer_check(df, answer, "output")
 
 
 def test_percent_of_total_1(spark_session) -> None:
@@ -65,10 +65,10 @@ def test_percent_of_total_1(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = characters_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = percent_of_total(df, {"data": "output"})
     answer = {"a": 0.05, "b": 0.0, "c": 0.2, "d": 0.25, "e": 0.5, "f": None}
-    answer_check(df, answer, "output", "test_1")
+    answer_check(df, answer, "output")
 
 
 def test_percent_of_total_2(spark_session) -> None:
@@ -78,7 +78,7 @@ def test_percent_of_total_2(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = characters_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = percent_of_total(df, {"data": "output", "data2": "output2"})
     answer = {"a": 0.05, "b": 0.0, "c": 0.2, "d": 0.25, "e": 0.5, "f": None}
     answer2 = {"a": 0.125, "b": 0.0, "c": 0.25, "d": 0.0, "e": None, "f": 0.625}
@@ -93,7 +93,7 @@ def test_percent_of_total_3(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = characters_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = percent_of_total(df, ["data", "data2"])
     answer = {"a": 0.05, "b": 0.0, "c": 0.2, "d": 0.25, "e": 0.5, "f": None}
     answer2 = {"a": 0.125, "b": 0.0, "c": 0.25, "d": 0.0, "e": None, "f": 0.625}
@@ -108,9 +108,10 @@ def test_percent_of_total_4(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = characters_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = percent_of_total(df, ["data", "data2"], default_name="percent_{0}")
     answer = {"a": 0.05, "b": 0.0, "c": 0.2, "d": 0.25, "e": 0.5, "f": None}
     answer2 = {"a": 0.125, "b": 0.0, "c": 0.25, "d": 0.0, "e": None, "f": 0.625}
     answer_check(df, answer, "percent_data", "test_4_first_output")
     answer_check(df, answer2, "percent_data2", "test_4_second_output")
+
