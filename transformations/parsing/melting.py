@@ -57,3 +57,4 @@ def melt(
     cols = id_vars + [F.col("_vars_and_vals")[x].alias(x) for x in [var_name, value_name]]
 
     return _tmp.select(*cols)
+
