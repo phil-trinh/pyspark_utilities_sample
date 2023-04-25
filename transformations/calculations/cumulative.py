@@ -102,3 +102,4 @@ def percent_of_total(
         df = df.withColumn(columns[col], F.col(col) / F.col(columns[col]))
 
     return df
+
