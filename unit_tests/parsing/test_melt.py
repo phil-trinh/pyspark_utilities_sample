@@ -18,9 +18,9 @@ from transformations_library.parsing.melting import melt
 from transformations_library.parsing.row_key import primary_key
 
 
-def melt_dataframe(spark_session) -> DataFrame:
+def create_dataframe(spark_session) -> DataFrame:
     """
-    Create a DataFrame to use for testing the melt function.
+    Create a DataFrame to use for testing the function.
 
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
@@ -50,11 +50,11 @@ def test_melt_0(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = melt_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = melt(df, id_vars=["key"], value_vars=["col_a", "col_b", "col_c"])
-    df = primary_key(df, "key", "categories")
+    df = primary_key(df, "key", "categories", key_col="primary")
     answer = {"a-col_a": "hello", "a-col_b": "1", "a-col_c": "2", "b-col_a": "world", "b-col_b": "3", "b-col_c": None}
-    answer_check(df, answer, "values", "test_0", key_col="primary_key")
+    answer_check(df, answer, "values", key_col="primary")
 
 
 def test_melt_1(spark_session) -> None:
@@ -64,11 +64,11 @@ def test_melt_1(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = melt_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = melt(df, id_vars=["key"])
-    df = primary_key(df, "key", "categories")
+    df = primary_key(df, "key", "categories", key_col="primary")
     answer = {"a-col_a": "hello", "a-col_b": "1", "a-col_c": "2", "b-col_a": "world", "b-col_b": "3", "b-col_c": None}
-    answer_check(df, answer, "values", "test_1", key_col="primary_key")
+    answer_check(df, answer, "values", key_col="primary")
 
 
 def test_melt_2(spark_session) -> None:
@@ -78,8 +78,9 @@ def test_melt_2(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = melt_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = melt(df, value_vars=["col_a", "col_b", "col_c"])
-    df = primary_key(df, "key", "categories")
+    df = primary_key(df, "key", "categories", key_col="primary")
     answer = {"a-col_a": "hello", "a-col_b": "1", "a-col_c": "2", "b-col_a": "world", "b-col_b": "3", "b-col_c": None}
-    answer_check(df, answer, "values", "test_2", key_col="primary_key")
+    answer_check(df, answer, "values", key_col="primary")
+
