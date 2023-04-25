@@ -9,10 +9,10 @@ from datetime import datetime
 
 from ..unit_test_utils import answer_check
 
-from pyspark_utilities_sample.date_handling import to_calendar
+from transformations_library.date_handling import to_calendar
 
 
-def date_col_dataframe(spark_session) -> DataFrame:
+def create_dataframe(spark_session) -> DataFrame:
     """
     Create a DataFrame to use for testing the function.
 
@@ -46,7 +46,7 @@ def test_date_col_from_fy_0(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = date_col_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = to_calendar.date_col_from_fy(df, "data", "output", True)
     answer = {
         "a": datetime(2021, 9, 30).date(),
@@ -55,7 +55,7 @@ def test_date_col_from_fy_0(spark_session) -> None:
         "d": None,
         "e": datetime(2019, 6, 30).date(),
     }
-    answer_check(df, answer, "output", "test_0")
+    answer_check(df, answer, "output")
 
 
 def test_date_col_from_fy_1(spark_session) -> None:
@@ -65,7 +65,7 @@ def test_date_col_from_fy_1(spark_session) -> None:
     Input
         spark_session: Globally available variable to build a DataFrame from scratch.
     """
-    df = date_col_dataframe(spark_session)
+    df = create_dataframe(spark_session)
     df = to_calendar.date_col_from_fy(df, "data_no_quarter", "output")
     answer = {
         "a": datetime(2020, 12, 31).date(),
@@ -74,4 +74,5 @@ def test_date_col_from_fy_1(spark_session) -> None:
         "d": None,
         "e": datetime(2018, 12, 31).date(),
     }
-    answer_check(df, answer, "output", "test_1")
+    answer_check(df, answer, "output")
+

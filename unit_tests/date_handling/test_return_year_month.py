@@ -20,3 +20,4 @@ def test_return_year_month_0():
     (year, month) = return_year_month()
     assertion_helper(today.year, year, "Year mismatch")
     assertion_helper(today.month, month, "Month mismatch")
+

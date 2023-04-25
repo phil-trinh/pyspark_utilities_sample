@@ -22,3 +22,4 @@ def test_return_fiscal_period():
     (year, month) = return_fiscal_period()
     assertion_helper(f_year, year, "Year mismatch")
     assertion_helper(f_month, month, "Month mismatch")
+
